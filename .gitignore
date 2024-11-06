@@ -1,0 +1,11 @@
+# Compiler files
+
+node_modules/
+package-lock.json
+
+
+# Docs
+docs/
+
+# Dotenv file
+.env

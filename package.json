@@ -1,0 +1,37 @@
+{
+  "main": "build/index.js",
+  "module": "build-esm/index.js",
+  "types": "build/index.d.ts",
+  "devDependencies": {
+    "@typechain/ethers-v6": "^0.5.0",
+    "@types/chai": "^5.0.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^22.8.1",
+    "axios": "^1.7.7",
+    "chai": "^5.1.2",
+    "ethers": "^6.13.4",
+    "ffjavascript": "0.3.1",
+    "gts": "^6.0.2",
+    "prettier": "3.3.3",
+    "ts-node": "^10.9.1",
+    "typechain": "^8.3.1",
+    "typedoc": "^0.26.10",
+    "typedoc-plugin-markdown": "4.2.9",
+    "typescript": "^5.6.3"
+  },
+  "scripts": {
+    "test:types": "ts-node tests/types.ts",
+    "poseidon": "ts-node tests/poseidon.ts",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run lint",
+    "build": "tsc & tsc --module ESNEXT --moduleResolution Node --outDir build-esm"
+  },
+  "dependencies": {
+    "buffer": "^6.0.3"
+  }
+}

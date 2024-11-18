@@ -52,6 +52,7 @@ export declare class UserOperation implements UserOperationField {
     packOpInfo(): Uint8Array;
     packChainGasLimit(): Uint8Array;
     packChainGasPrice(): Uint8Array;
+    formattedUserOperation(): Record<string, any>;
 }
 export interface AccountDetails {
     balance: string;

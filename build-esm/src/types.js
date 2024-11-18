@@ -159,5 +159,21 @@ export class UserOperation {
     packChainGasPrice() {
         return packUints(this.mainChainGasPrice, this.destChainGasPrice);
     }
+    formattedUserOperation() {
+        const toHexString = (value) => `0x${BigInt(value).toString(16)}`;
+        return {
+            operationType: this.operationType,
+            operationValue: toHexString(this.operationValue),
+            sender: this.sender,
+            nonce: toHexString(this.nonce),
+            chainId: toHexString(this.chainId),
+            callData: this.callData || '0x',
+            mainChainGasLimit: toHexString(this.mainChainGasLimit),
+            destChainGasLimit: toHexString(this.destChainGasLimit),
+            zkVerificationGasLimit: toHexString(this.zkVerificationGasLimit),
+            mainChainGasPrice: toHexString(this.mainChainGasPrice),
+            destChainGasPrice: toHexString(this.destChainGasPrice),
+        };
+    }
 }
 //# sourceMappingURL=types.js.map

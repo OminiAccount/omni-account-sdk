@@ -450,9 +450,6 @@ async function buildPoseidon(): Promise<Poseidon> {
       state = state.map((_, i) =>
         state.reduce((acc, a, j) => F.add(acc, F.mul(M[i][j], a)), F.zero),
       );
-
-      // After the permute operation in each round
-      console.log(`State after round ${r}:`, state);
     }
 
     return [state[0], state[1], state[2], state[3]];

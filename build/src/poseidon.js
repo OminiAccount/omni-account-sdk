@@ -415,11 +415,13 @@ async function buildPoseidon() {
             if (capacity.length !== 4)
                 throw new Error('Invalid Capacity size (must be 4)');
             state = [...inputs.map(a => F.e(a)), ...capacity.map(a => F.e(a))];
+            // console.log('state', state);
         }
         else {
             state = [...inputs.map(a => F.e(a)), F.zero, F.zero, F.zero, F.zero];
         }
         for (let r = 0; r < nRoundsF + nRoundsP; r++) {
+            // Before the permute operation in each round
             state = state.map((a, i) => F.add(a, C[r * t + i]));
             if (r < nRoundsF / 2 || r >= nRoundsF / 2 + nRoundsP) {
                 state = state.map(a => pow7(a));

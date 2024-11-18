@@ -212,6 +212,25 @@ export class UserOperation implements UserOperationField {
   packChainGasPrice(): Uint8Array {
     return packUints(this.mainChainGasPrice, this.destChainGasPrice);
   }
+
+  formattedUserOperation(): Record<string, any> {
+    const toHexString = (value: BigNumberish) =>
+      `0x${BigInt(value).toString(16)}`;
+
+    return {
+      operationType: this.operationType,
+      operationValue: toHexString(this.operationValue),
+      sender: this.sender,
+      nonce: toHexString(this.nonce),
+      chainId: toHexString(this.chainId),
+      callData: this.callData || '0x',
+      mainChainGasLimit: toHexString(this.mainChainGasLimit),
+      destChainGasLimit: toHexString(this.destChainGasLimit),
+      zkVerificationGasLimit: toHexString(this.zkVerificationGasLimit),
+      mainChainGasPrice: toHexString(this.mainChainGasPrice),
+      destChainGasPrice: toHexString(this.destChainGasPrice),
+    };
+  }
 }
 
 export interface AccountDetails {

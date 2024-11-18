@@ -16,5 +16,5 @@ export declare class Account {
         data?: undefined;
     }>;
     getUserAccount(account: Address): Promise<Address>;
-    getUserOpsHistoryForAccount(account: Address, aaContractAddress: Address): Promise<AccountDetails>;
+    getAccountInfo(account: Address, accountContract: Address, chainId: string): Promise<AccountDetails>;
 }

@@ -24,7 +24,11 @@ export class Account {
     try {
       const {userOperation, signature} =
         await this.eip712.sign(userOperationField);
-      const signUserOperation = {...userOperation, signature};
+
+      const signUserOperation = {
+        ...userOperation.formattedUserOperation(),
+        signature,
+      };
 
       const response = await axios.post(this.bundler, {
         jsonrpc: '2.0',
@@ -62,23 +66,29 @@ export class Account {
     return response.data.result[0];
   }
 
-  async getUserOpsHistoryForAccount(
+  async getAccountInfo(
     account: Address,
-    aaContractAddress: Address,
+    accountContract: Address,
+    chainId: string,
   ): Promise<AccountDetails> {
     const response = await axios.post(this.bundler, {
       jsonrpc: '2.0',
-      method: 'eth_getUserOpsForAccount',
-      params: [account, aaContractAddress],
+      method: 'eth_getAccountInfo',
+      params: [account, accountContract, parseInt(chainId, 10)],
       id: 1,
     });
 
     assert(
       !!response.data.result,
-      'failed to find userOps history',
+      'failed to find account info',
       'UNKNOWN_ERROR',
       {},
     );
-    return response.data.result;
+    const res: AccountDetails = {
+      balance: response.data.result.Balance,
+      nonce: response.data.result.Nonce,
+      history: response.data.result.UserOperations,
+    };
+    return res;
   }
 }

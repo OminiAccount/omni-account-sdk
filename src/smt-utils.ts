@@ -86,10 +86,7 @@ async function hashMessage(_bytecode: string): Promise<string> {
       }
     }
 
-    console.log('elementsToHash', elementsToHash);
-
     tmpHash = poseidon(elementsToHash.slice(4, 12), elementsToHash.slice(0, 4));
-    console.log('tmpHash: ', tmpHash);
   }
   const a = h4toString(tmpHash);
 

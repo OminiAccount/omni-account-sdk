@@ -11,9 +11,7 @@ const eip712Domain = {
 };
 
 async function main() {
-  const root = await hashMessage(
-    'abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab',
-  );
+  const root = await hashMessage('');
   console.log('root: ', root);
 }
 

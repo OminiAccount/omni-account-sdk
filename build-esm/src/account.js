@@ -13,7 +13,10 @@ export class Account {
     async sendUserOperation(userOperationField) {
         try {
             const { userOperation, signature } = await this.eip712.sign(userOperationField);
-            const signUserOperation = { ...userOperation, signature };
+            const signUserOperation = {
+                ...userOperation.formattedUserOperation(),
+                signature,
+            };
             const response = await axios.post(this.bundler, {
                 jsonrpc: '2.0',
                 method: 'eth_sendUserOperation',
@@ -42,15 +45,20 @@ export class Account {
         assert(!!response.data.result[0], 'failed to find UserAccount', 'UNKNOWN_ERROR', {});
         return response.data.result[0];
     }
-    async getUserOpsHistoryForAccount(account, aaContractAddress) {
+    async getAccountInfo(account, accountContract, chainId) {
         const response = await axios.post(this.bundler, {
             jsonrpc: '2.0',
-            method: 'eth_getUserOpsForAccount',
-            params: [account, aaContractAddress],
+            method: 'eth_getAccountInfo',
+            params: [account, accountContract, parseInt(chainId, 10)],
             id: 1,
         });
-        assert(!!response.data.result, 'failed to find userOps history', 'UNKNOWN_ERROR', {});
-        return response.data.result;
+        assert(!!response.data.result, 'failed to find account info', 'UNKNOWN_ERROR', {});
+        const res = {
+            balance: response.data.result.Balance,
+            nonce: response.data.result.Nonce,
+            history: response.data.result.UserOperations,
+        };
+        return res;
     }
 }
 //# sourceMappingURL=account.js.map

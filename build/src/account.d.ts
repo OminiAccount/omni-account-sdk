@@ -8,12 +8,12 @@ export declare class Account {
     constructor(bundler: string, ethSigner: ethers.Signer);
     sendUserOperation(userOperationField: UserOperationField): Promise<{
         success: boolean;
-        data: any;
-        error?: undefined;
+        error: any;
+        data?: undefined;
     } | {
         success: boolean;
-        error: string;
-        data?: undefined;
+        data: any;
+        error?: undefined;
     }>;
     getUserAccount(account: Address): Promise<Address>;
     getAccountInfo(account: Address, accountContract: Address, chainId: string): Promise<AccountDetails>;

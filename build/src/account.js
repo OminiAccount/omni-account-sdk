@@ -29,6 +29,12 @@ class Account {
                 params: [signUserOperation],
                 id: 1,
             });
+            if (response.data.error) {
+                return {
+                    success: false,
+                    error: response.data.error.message || 'Business logic error',
+                };
+            }
             return {
                 success: true,
                 data: response.data,

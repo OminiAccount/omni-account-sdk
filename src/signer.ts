@@ -1,5 +1,5 @@
-import {ethers} from 'ethers';
-import {TypedDataDomain, TypedDataEncoder} from './typed-data';
+import {assert, ethers, toUtf8Bytes} from 'ethers';
+import {TypedDataDomain, TypedDataEncoder, verifyTypedData} from './typed-data';
 import {Signature, UserOperation, UserOperationField} from './types';
 
 /**
@@ -103,12 +103,26 @@ export class EIP712Signer {
     userOperationField: UserOperationField,
   ): Promise<{userOperation: UserOperation; signature: Signature}> {
     const userOperation = UserOperation.from(userOperationField);
-    const dataHash = await TypedDataEncoder.hash(
-      await this.eip712Domain,
-      EIP712_TYPES,
-      this.getSignInput(UserOperation.from(userOperationField)),
+    const dataHash = ethers.toBeArray(
+      await TypedDataEncoder.hash(
+        await this.eip712Domain,
+        EIP712_TYPES,
+        this.getSignInput(UserOperation.from(userOperationField)),
+      ),
     );
     const signature = await this.ethSigner.signMessage(dataHash);
+
+    {
+      let messageHash = ethers.hashMessage(dataHash);
+      const recoverAddress = ethers.recoverAddress(messageHash, signature);
+
+      assert(
+        recoverAddress == (await this.ethSigner.getAddress()),
+        'signature failed(recoverAddress is not equal to signer)',
+        'UNKNOWN_ERROR',
+        {},
+      );
+    }
 
     return {userOperation, signature};
   }

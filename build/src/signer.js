@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EIP712Signer = exports.EIP712_TYPES = void 0;
+const ethers_1 = require("ethers");
 const typed_data_1 = require("./typed-data");
 const types_1 = require("./types");
 /**
@@ -100,8 +101,13 @@ class EIP712Signer {
      */
     async sign(userOperationField) {
         const userOperation = types_1.UserOperation.from(userOperationField);
-        const dataHash = await typed_data_1.TypedDataEncoder.hash(await this.eip712Domain, exports.EIP712_TYPES, this.getSignInput(types_1.UserOperation.from(userOperationField)));
+        const dataHash = ethers_1.ethers.toBeArray(await typed_data_1.TypedDataEncoder.hash(await this.eip712Domain, exports.EIP712_TYPES, this.getSignInput(types_1.UserOperation.from(userOperationField))));
         const signature = await this.ethSigner.signMessage(dataHash);
+        {
+            let messageHash = ethers_1.ethers.hashMessage(dataHash);
+            const recoverAddress = ethers_1.ethers.recoverAddress(messageHash, signature);
+            (0, ethers_1.assert)(recoverAddress == (await this.ethSigner.getAddress()), 'signature failed(recoverAddress is not equal to signer)', 'UNKNOWN_ERROR', {});
+        }
         return { userOperation, signature };
     }
     /**

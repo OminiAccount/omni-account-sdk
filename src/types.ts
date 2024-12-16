@@ -7,11 +7,25 @@ import {
   getBigInt,
   keccak256,
 } from 'ethers';
-import {packUints} from './utils';
+import {packUints, toHexString} from './utils';
 
 import {Buffer} from 'buffer';
 
 const BN_0 = BigInt(0);
+
+export const EMPTY_KECCAK_HASH = new Uint8Array(
+  Buffer.from(
+    'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
+    'hex',
+  ),
+);
+
+export const EMPTY_HASH = new Uint8Array(
+  Buffer.from(
+    '0000000000000000000000000000000000000000000000000000000000000000',
+    'hex',
+  ),
+);
 
 /** 0x-prefixed, hex encoded, ethereum account address. */
 export type Address = string;
@@ -24,10 +38,7 @@ export enum OperationType {
   WithdrawAction = 2,
 }
 
-export interface UserOperationField {
-  operationType?: null | number;
-  operationValue?: null | BigNumberish;
-  sender?: null | string;
+export interface ExecDataField {
   nonce?: null | BigNumberish;
   chainId?: null | number;
   callData?: null | string;
@@ -38,10 +49,7 @@ export interface UserOperationField {
   destChainGasPrice?: null | BigNumberish;
 }
 
-export class UserOperation implements UserOperationField {
-  #operationType: number;
-  #operationValue: bigint;
-  #sender: string;
+class ExecData implements ExecDataField {
   #nonce: bigint;
   #chainId: number;
   #callData: null | string;
@@ -50,27 +58,6 @@ export class UserOperation implements UserOperationField {
   #zkVerificationGasLimit: bigint;
   #mainChainGasPrice: bigint;
   #destChainGasPrice: bigint;
-
-  get operationType(): number {
-    return this.#operationType;
-  }
-  set operationType(value: number) {
-    this.#operationType = value;
-  }
-
-  get operationValue(): bigint {
-    return this.#operationValue;
-  }
-  set operationValue(value: BigNumberish) {
-    this.#operationValue = getBigInt(value, 'operationValue');
-  }
-
-  get sender(): string {
-    return this.#sender;
-  }
-  set sender(value: string) {
-    this.#sender = value;
-  }
 
   get nonce(): bigint {
     return this.#nonce;
@@ -129,9 +116,6 @@ export class UserOperation implements UserOperationField {
   }
 
   constructor() {
-    this.#operationType = 0;
-    this.#operationValue = BN_0;
-    this.#sender = '0x';
     this.#nonce = BN_0;
     this.#chainId = 0;
     this.#callData = '0x';
@@ -142,55 +126,33 @@ export class UserOperation implements UserOperationField {
     this.#destChainGasPrice = BN_0;
   }
 
-  static from(userOperation: UserOperationField): UserOperation {
-    const result = new UserOperation();
-    if (userOperation.operationType != null) {
-      result.operationType = userOperation.operationType;
+  static from(execData: ExecDataField): ExecData {
+    const result = new ExecData();
+    if (execData.nonce != null) {
+      result.nonce = execData.nonce;
     }
-    if (userOperation.operationValue != null) {
-      result.operationValue = userOperation.operationValue;
+    if (execData.chainId != null) {
+      result.chainId = execData.chainId;
     }
-    if (userOperation.sender != null) {
-      result.sender = userOperation.sender;
+    if (execData.callData != null) {
+      result.callData = execData.callData;
     }
-    if (userOperation.nonce != null) {
-      result.nonce = userOperation.nonce;
+    if (execData.mainChainGasLimit != null) {
+      result.mainChainGasLimit = execData.mainChainGasLimit;
     }
-    if (userOperation.chainId != null) {
-      result.chainId = userOperation.chainId;
+    if (execData.destChainGasLimit != null) {
+      result.destChainGasLimit = execData.destChainGasLimit;
     }
-    if (userOperation.callData != null) {
-      result.callData = userOperation.callData;
+    if (execData.zkVerificationGasLimit != null) {
+      result.zkVerificationGasLimit = execData.zkVerificationGasLimit;
     }
-    if (userOperation.mainChainGasLimit != null) {
-      result.mainChainGasLimit = userOperation.mainChainGasLimit;
+    if (execData.mainChainGasPrice != null) {
+      result.mainChainGasPrice = execData.mainChainGasPrice;
     }
-    if (userOperation.destChainGasLimit != null) {
-      result.destChainGasLimit = userOperation.destChainGasLimit;
-    }
-    if (userOperation.zkVerificationGasLimit != null) {
-      result.zkVerificationGasLimit = userOperation.zkVerificationGasLimit;
-    }
-    if (userOperation.mainChainGasPrice != null) {
-      result.mainChainGasPrice = userOperation.mainChainGasPrice;
-    }
-    if (userOperation.destChainGasPrice != null) {
-      result.destChainGasPrice = userOperation.destChainGasPrice;
+    if (execData.destChainGasPrice != null) {
+      result.destChainGasPrice = execData.destChainGasPrice;
     }
     return result;
-  }
-
-  packOperation(): Uint8Array {
-    const encodeBytes = new Uint8Array(32);
-
-    encodeBytes[0] = this.operationType;
-    const operationValueBytes = zeroPadValue(
-      toBeArray(this.operationValue),
-      31,
-    );
-    encodeBytes.set(Buffer.from(operationValueBytes.slice(2), 'hex'), 1);
-
-    return encodeBytes;
   }
 
   keccakCalldata(): string {
@@ -213,14 +175,8 @@ export class UserOperation implements UserOperationField {
     return packUints(this.mainChainGasPrice, this.destChainGasPrice);
   }
 
-  formattedUserOperation(): Record<string, any> {
-    const toHexString = (value: BigNumberish) =>
-      `0x${BigInt(value).toString(16)}`;
-
+  formattedExecData(): Record<string, any> {
     return {
-      operationType: this.operationType,
-      operationValue: toHexString(this.operationValue),
-      sender: this.sender,
       nonce: toHexString(this.nonce),
       chainId: toHexString(this.chainId),
       callData: this.callData || '0x',
@@ -229,6 +185,110 @@ export class UserOperation implements UserOperationField {
       zkVerificationGasLimit: toHexString(this.zkVerificationGasLimit),
       mainChainGasPrice: toHexString(this.mainChainGasPrice),
       destChainGasPrice: toHexString(this.destChainGasPrice),
+    };
+  }
+}
+
+export interface UserOperationField {
+  operationType?: null | number;
+  operationValue?: null | BigNumberish;
+  sender?: null | string;
+  exec?: null | ExecDataField;
+  innerExec?: null | ExecDataField;
+}
+
+export class UserOperation implements UserOperationField {
+  #operationType: number;
+  #operationValue: bigint;
+  #sender: string;
+  #exec: ExecData;
+  #innerExec: null | ExecData;
+
+  get operationType(): number {
+    return this.#operationType;
+  }
+  set operationType(value: number) {
+    this.#operationType = value;
+  }
+
+  get operationValue(): bigint {
+    return this.#operationValue;
+  }
+  set operationValue(value: BigNumberish) {
+    this.#operationValue = getBigInt(value, 'operationValue');
+  }
+
+  get sender(): string {
+    return this.#sender;
+  }
+  set sender(value: string) {
+    this.#sender = value;
+  }
+
+  get exec(): ExecData {
+    return this.#exec;
+  }
+
+  set exec(value: ExecDataField) {
+    this.#exec = ExecData.from(value);
+  }
+
+  get innerExec(): null | ExecData {
+    return this.#innerExec;
+  }
+
+  set innerExec(value: ExecDataField) {
+    this.#innerExec = ExecData.from(value);
+  }
+
+  constructor() {
+    this.#operationType = 0;
+    this.#operationValue = BN_0;
+    this.#sender = '0x';
+    this.#exec = new ExecData();
+    this.#innerExec = new ExecData();
+  }
+
+  static from(userOperation: UserOperationField): UserOperation {
+    const result = new UserOperation();
+    if (userOperation.operationType != null) {
+      result.operationType = userOperation.operationType;
+    }
+    if (userOperation.operationValue != null) {
+      result.operationValue = userOperation.operationValue;
+    }
+    if (userOperation.sender != null) {
+      result.sender = userOperation.sender;
+    }
+    if (userOperation.exec != null) {
+      result.exec = userOperation.exec;
+    }
+    if (userOperation.innerExec != null) {
+      result.innerExec = userOperation.innerExec;
+    }
+    return result;
+  }
+
+  packOperation(): Uint8Array {
+    const encodeBytes = new Uint8Array(32);
+
+    encodeBytes[0] = this.operationType;
+    const operationValueBytes = zeroPadValue(
+      toBeArray(this.operationValue),
+      31,
+    );
+    encodeBytes.set(Buffer.from(operationValueBytes.slice(2), 'hex'), 1);
+
+    return encodeBytes;
+  }
+
+  formattedUserOperation(): Record<string, any> {
+    return {
+      operationType: this.operationType,
+      operationValue: toHexString(this.operationValue),
+      sender: this.sender,
+      exec: this.exec.formattedExecData(),
+      innerExec: this.innerExec?.formattedExecData(),
     };
   }
 }

@@ -2,6 +2,7 @@ import {
   BigNumberish,
   ethers,
   hexlify,
+  keccak256,
   toBeArray,
   toBeHex,
   toBigInt,
@@ -74,4 +75,8 @@ export async function poseidonId(value: string): Promise<string> {
 
   const typeHash = hashMessage(hexlify(valueBytes));
   return typeHash;
+}
+
+export function toHexString(value: BigNumberish): string {
+  return `0x${BigInt(value).toString(16)}`;
 }

@@ -11,11 +11,16 @@ exports.EIP712_TYPES = {
     UserOperation: [
         { name: 'operation', type: 'bytes32' },
         { name: 'sender', type: 'address' },
-        { name: 'opInfo', type: 'bytes32' },
-        { name: 'callData', type: 'bytes32' },
-        { name: 'chainGasLimit', type: 'bytes32' },
-        { name: 'zkVerificationGasLimit', type: 'uint256' },
-        { name: 'chainGasPrice', type: 'bytes32' },
+        { name: 'opInfo0', type: 'bytes32' },
+        { name: 'callData0', type: 'bytes32' },
+        { name: 'chainGasLimit0', type: 'bytes32' },
+        { name: 'zkVerificationGasLimit0', type: 'uint256' },
+        { name: 'chainGasPrice0', type: 'bytes32' },
+        { name: 'opInfo1', type: 'bytes32' },
+        { name: 'callData1', type: 'bytes32' },
+        { name: 'chainGasLimit1', type: 'bytes32' },
+        { name: 'zkVerificationGasLimit1', type: 'uint256' },
+        { name: 'chainGasPrice1', type: 'bytes32' },
     ],
 };
 /**
@@ -67,11 +72,26 @@ class EIP712Signer {
         return {
             operation: userOperation.packOperation(),
             sender: userOperation.sender,
-            opInfo: userOperation.packOpInfo(),
-            callData: userOperation.keccakCalldata(),
-            chainGasLimit: userOperation.packChainGasLimit(),
-            zkVerificationGasLimit: userOperation.zkVerificationGasLimit,
-            chainGasPrice: userOperation.packChainGasPrice(),
+            opInfo0: userOperation.exec.packOpInfo(),
+            callData0: userOperation.exec.keccakCalldata(),
+            chainGasLimit0: userOperation.exec.packChainGasLimit(),
+            zkVerificationGasLimit0: userOperation.exec.zkVerificationGasLimit,
+            chainGasPrice0: userOperation.exec.packChainGasPrice(),
+            opInfo1: userOperation.innerExec == null
+                ? types_1.EMPTY_HASH
+                : userOperation.innerExec.packOpInfo(),
+            callData1: userOperation.innerExec == null
+                ? types_1.EMPTY_KECCAK_HASH
+                : userOperation.innerExec.keccakCalldata(),
+            chainGasLimit1: userOperation.innerExec == null
+                ? types_1.EMPTY_HASH
+                : userOperation.innerExec.packChainGasLimit(),
+            zkVerificationGasLimit1: userOperation.innerExec == null
+                ? types_1.EMPTY_HASH
+                : userOperation.innerExec.zkVerificationGasLimit,
+            chainGasPrice1: userOperation.innerExec == null
+                ? types_1.EMPTY_HASH
+                : userOperation.innerExec.packChainGasPrice(),
         };
     }
     /**

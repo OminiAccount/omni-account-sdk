@@ -52,11 +52,16 @@ export declare class EIP712Signer {
     getSignInput(userOperation: UserOperation): {
         operation: Uint8Array;
         sender: string;
-        opInfo: Uint8Array;
-        callData: string;
-        chainGasLimit: Uint8Array;
-        zkVerificationGasLimit: bigint;
-        chainGasPrice: Uint8Array;
+        opInfo0: Uint8Array;
+        callData0: string;
+        chainGasLimit0: Uint8Array;
+        zkVerificationGasLimit0: bigint;
+        chainGasPrice0: Uint8Array;
+        opInfo1: Uint8Array;
+        callData1: string | Uint8Array;
+        chainGasLimit1: Uint8Array;
+        zkVerificationGasLimit1: bigint | Uint8Array;
+        chainGasPrice1: Uint8Array;
     };
     /**
      * Signs a transaction request using EIP712.

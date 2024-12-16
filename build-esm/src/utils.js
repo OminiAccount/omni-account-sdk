@@ -51,4 +51,7 @@ export async function poseidonId(value) {
     const typeHash = hashMessage(hexlify(valueBytes));
     return typeHash;
 }
+export function toHexString(value) {
+    return `0x${BigInt(value).toString(16)}`;
+}
 //# sourceMappingURL=utils.js.map

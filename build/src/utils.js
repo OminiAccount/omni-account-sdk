@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.packUints = packUints;
 exports.poseidonId = poseidonId;
+exports.toHexString = toHexString;
 const ethers_1 = require("ethers");
 const smt_utils_1 = require("./smt-utils");
 const buffer_1 = require("buffer");
@@ -54,5 +55,8 @@ async function poseidonId(value) {
     const valueBytes = (0, ethers_1.toUtf8Bytes)(value);
     const typeHash = (0, smt_utils_1.hashMessage)((0, ethers_1.hexlify)(valueBytes));
     return typeHash;
+}
+function toHexString(value) {
+    return `0x${BigInt(value).toString(16)}`;
 }
 //# sourceMappingURL=utils.js.map

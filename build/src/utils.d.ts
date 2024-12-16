@@ -1,3 +1,4 @@
+import { BigNumberish } from 'ethers';
 /**
  * Packing two uint128 values (BigNumber representations) into a 32-byte Uint8Array.
  * @param high128
@@ -18,3 +19,4 @@ export declare function packUints(high128: bigint, low128: bigint): Uint8Array;
  *    //_result:
  */
 export declare function poseidonId(value: string): Promise<string>;
+export declare function toHexString(value: BigNumberish): string;
